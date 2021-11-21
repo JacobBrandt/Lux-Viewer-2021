@@ -1028,8 +1028,10 @@ class MainScene extends Phaser.Scene {
 
     // add annotations
     if (this.debug) {
+      let textMetrics = null;
       f.annotations.forEach((cmd) => {
         const strs = cmd.command.split(' ');
+        //console.log("strs: ", strs);
         switch (strs[0]) {
           case Game.ACTIONS.DEBUG_ANNOTATE_CIRCLE: {
             if (strs.length === 3) {
@@ -1138,11 +1140,12 @@ class MainScene extends Phaser.Scene {
             if (strs.length > 3) {
               let x = parseInt(strs[1]);
               let y = parseInt(strs[2]);
-              const message = cmd.command
-                .split(' ')
-                .slice(3, 4)
-                .join(' ')
-                .split("'")[1];
+              const message = strs[3];
+              //const message = cmd.command
+              //  .split(' ')
+              //  .slice(3, 4)
+              //  .join(' ')
+              //  .split("'")[1];
               let fontsize = parseInt(strs[strs.length - 1]);
               if (isNaN(x) || isNaN(y) || isNaN(fontsize)) {
                 return;
@@ -1169,10 +1172,12 @@ class MainScene extends Phaser.Scene {
                   message,
                   {
                     fontSize: `${fontsize * this.overallScale}px`,
+                    metrics: textMetrics
                   }
                 )
-                .setDepth(10e5)
-                .setColor(color);
+                .setDepth(10e5);
+                //.setColor(color);
+              textMetrics = textobj.getTextMetrics();
               this.currentRenderedFramesText.push(textobj);
               // this.graphics
               //   .lineBetween(
