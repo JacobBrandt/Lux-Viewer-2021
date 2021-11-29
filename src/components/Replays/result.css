@@ -1,0 +1,25 @@
+.result {
+  margin-bottom: 5px;
+  border: 1px solid;
+  background-color: #304e50;
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+}
+
+.result.loss {
+  background-color: #5c0a0a;
+}
+
+.result:hover {
+  cursor: pointer;
+}
+
+.result > .score {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.result.selected {
+  background-color: #9d23c5;
+}

@@ -1,5 +1,5 @@
 import 'phaser';
-import React, { KeyboardEvent, useEffect, useState, version } from 'react';
+import React, { KeyboardEvent, useEffect, useRef, useState, version } from 'react';
 import MainScene, { Frame, FrameTileData } from '../scenes/MainScene';
 import { createGame } from '../game';
 import {
@@ -25,7 +25,8 @@ import UploadSVG from '../icons/upload.svg';
 import { parseReplayData } from '../utils/replays';
 import clientConfigs from './configs.json';
 import WarningsPanel from './WarningsPanel';
-// import debug_replay from './replay.json';
+import debug_replay from './replay.json';
+import { ReplayController } from './Replays/ReplayController';
 export type GameComponentProps = {
   // replayData?: any;
 };
@@ -41,7 +42,12 @@ const theme = createMuiTheme({
   },
 });
 
+let currentReplay = null;
+let subscription = null;
+
 export const GameComponent = () => {
+
+  const contentRef = useRef(null);
   const [notifWindowOpen, setNotifWindowOpen] = useState(false);
   const [replayData, setReplayData] = useState(null);
   const [notifMsg, setNotifMsg] = useState('');
@@ -90,6 +96,19 @@ export const GameComponent = () => {
   const [currentFrame, setFrame] = useState<Frame>(null);
   const [uploading, setUploading] = useState(false);
   const fileInput = React.createRef<HTMLInputElement>();
+
+  if (subscription === null) {
+    subscription = ReplayController.getInstance().onChange().subscribe(replay => {
+      if (replay && currentReplay !== replay) {
+        console.log("load replay: ", replay);
+        const canvasWrapper = document
+          .getElementById('content')
+          .getElementsByTagName('canvas')[0];
+        contentRef.current.removeChild(canvasWrapper);
+        loadGame(parseReplayData(replay));
+      }
+    });
+  }
 
   // If the game changes, put a setup callback to set up controller configs
   useEffect(() => {
@@ -274,7 +293,9 @@ export const GameComponent = () => {
       setWarningMessage(warningMessage);
       return;
     }
+    console.log("load game");
     if (game) {
+      console.log("Destroy game");
       game.destroy(true, false);
     }
     setReady(false);
@@ -284,7 +305,7 @@ export const GameComponent = () => {
       handleTileClicked,
       handleUnitTracked,
       zoom,
-    });
+    }, contentRef.current.clientHeight, contentRef.current.clientWidth);
     setGame(newgame);
   };
 
@@ -370,7 +391,7 @@ export const GameComponent = () => {
     } else if (window.innerWidth <= 1280) {
       el[0].style.fontSize = '8pt';
     }
-    // loadGame(parseReplayData(debug_replay));
+    loadGame(parseReplayData(debug_replay));
   }, []);
   useEffect(() => {
     const handleKeyDown = (event: globalThis.KeyboardEvent) => {
@@ -444,7 +465,7 @@ export const GameComponent = () => {
   return (
     <div className="Game">
       <ThemeProvider theme={theme}>
-        <div id="content"></div>
+        <div id="content" ref={contentRef}></div>
         {!isReady && warningMessage === '' && (
           <div className="upload-no-replay-wrapper">
             <p>Welcome to the Lux AI Season 1 Visualizer</p>

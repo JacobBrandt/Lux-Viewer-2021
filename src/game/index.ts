@@ -17,11 +17,13 @@ export const config: Phaser.Types.Core.GameConfig = {
 };
 
 export const createGame = (
-  gameCreationConfigs: GameCreationConfigs
+  gameCreationConfigs: GameCreationConfigs,
+  height?: number,
+  width?: number
 ): Phaser.Game => {
   let max = Math.max(
-    document.documentElement.clientHeight,
-    document.documentElement.clientWidth
+    height ? height : document.documentElement.clientHeight,
+    width ? width : document.documentElement.clientWidth
   );
   console.log(max);
   let zoom = gameCreationConfigs.zoom;

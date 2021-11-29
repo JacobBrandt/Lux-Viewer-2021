@@ -1,0 +1,6 @@
+.replay {
+  width: 220px;
+  overflow-y: auto;
+  padding: 5px;
+  border-right: 2px solid #304e50;
+}
